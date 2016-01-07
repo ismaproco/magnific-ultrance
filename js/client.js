@@ -3,17 +3,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
   main();
 });
 
-
+var loadedElements = 0;
 
 function main() {
     //get canvas to draw the tiles and cleared
     var canvas = document.getElementById('canvas');
+    
 
     var imgLoader = function imgLoader(data, x, y) {
         drawSvgInCanvas(data, canvas,x,y);
     }
 
     document.getElementById("files").onchange = function () {
+        loadedElements = 0;
         var reader = new FileReader();
 
         reader.onload = function (e) {
@@ -34,21 +36,47 @@ function main() {
                     var posx, posy;
                     posx = posy = 0;
                     y =0;
-                    for (var y = 0; y < context.canvas.height - TILE_HEIGHT; y+=TILE_HEIGHT) {
-                        //fill array of rows with the tiles colors
-                        for(var x = 0; x < context.canvas.width - TILE_WIDTH; x+=TILE_WIDTH) {
-                                var rgb = getAverageRGBByContextSection(context, x,y,TILE_WIDTH,TILE_HEIGHT);
-                                
-                                getColorTileSvg(rgb, imgLoader,posx,posy);
-                                posx+=16;
-                        };
-                        posy += 16;
-                        posx=0;
-                    }
 
-                
+
+                    var rowManagerIndex = 0;
+                    var rowBlock = false;
+                    var finish = false;
+                    var y,numRows = 0;
+                    var rowTiles = 0;
+
+                    (function generateRow(){
+                        
+                        if(!rowBlock) {
+                            rowTiles =0;
+                            
+                            for(var x = 0; x < context.canvas.width - TILE_WIDTH; x+=TILE_WIDTH) {
+                                    var rgb = getAverageRGBByContextSection(context, x,y,TILE_WIDTH,TILE_HEIGHT);
+                                    getColorTileSvg(rgb, imgLoader,posx,posy);
+                                    posx+=16;
+                                    rowTiles++;
+                            };    
+                            rowBlock = true;
+                        }
+                        
+                        if(!finish) {
+                            if(loadedElements === rowTiles) {
+                                rowBlock =false;
+                                loadedElements=0;
+
+                                posy += 16;
+                                posx=0;
+                                y+=TILE_HEIGHT;
+                                numRows++;
+
+                            } else if(y > context.canvas.height - TILE_HEIGHT) {
+                                finish = true;
+                                return;
+                            }
+
+                            window.requestAnimationFrame(generateRow);
+                        }
+                    })();
             }
-
             img.src = e.target.result;
         };
 
@@ -76,7 +104,7 @@ function getImageContext(imgEl) {
 
 function getAverageRGBByContextSection (context,x,y,width, height) {
       var rgb = {r:102,g:102,b:102}, // Set a base colour as a fallback for non-compliant browsers
-      pixelInterval = 10, // Rather than inspect every single pixel in the image inspect every 5th pixel
+      pixelInterval = 5 , // Rather than inspect every single pixel in the image inspect every 5th pixel
       count = 0,
       i = -4,
       data, length;
@@ -145,6 +173,7 @@ function drawSvgInCanvas(data,canvas, posx, posy) {
     img.onload = function () {
       ctx.drawImage(img, posx, posy);
       DOMURL.revokeObjectURL(url);
+      loadedElements++;
     }
 
     img.src = url;
