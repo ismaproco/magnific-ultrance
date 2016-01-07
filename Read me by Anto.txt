@@ -1,0 +1,22 @@
+*********************
+*  READ ME BY ANTO  *
+*********************
+First, when I tried to run the app, it fails, so I needs to install this first:
+npm install gm
+
+then,
+
+npm start
+
+// TODO
+
+Think about the use of the application in mobile, tablets, and desktop.
+(how to upload in different platforms)
+
+Research how they (canvas) do things.
+
+Research the best ways to implement the upload and image in node.
+Research the best ways to process an image in node or js.
+
+-----------------------------------------------------------------------
+

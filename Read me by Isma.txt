@@ -1,0 +1,23 @@
+I added the path recognition of css files in the server file, so I will be able to use styles, and separate the styles from the html file.
+
+- Then I searched for the fileReader API, so I can preview the image in the browser without the need to upload the image to the server.
+
+http://www.html5rocks.com/en/tutorials/file/dndfiles/
+
+- Then I research on how to get the average color of an Image element using javascript, this is the best answer I could fine.
+
+http://stackoverflow.com/questions/2541481/get-average-color-of-image-via-javascript
+
+
+- Then I separate the average function into two methods, one to get the full image data, 
+
+function getContextImage
+
+and another to calculate the averege of a section of a canvas context.
+
+function getAverageRGBByContextSection
+
+- Then I look up for a way to draw an svg on a canvas and found this:
+
+https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Drawing_DOM_objects_into_a_canvas
+
