@@ -20,9 +20,13 @@ function main() {
 
                 
                     var context = getImageContext(img);
+                    var ballSeparation = 20;
 
-                    canvas.width = context.canvas.width;
-                    canvas.height = context.canvas.height;
+                    canvas.width = context.canvas.width/TILE_WIDTH*ballSeparation;
+                    canvas.height = context.canvas.height/TILE_HEIGHT*ballSeparation;
+                    image.width = canvas.width;
+                    image.height = canvas.height;
+
 
                     tilesContext = canvas.getContext && canvas.getContext('2d');
                     tilesContext.clearRect(0, 0, canvas.width, canvas.height);
@@ -41,12 +45,12 @@ function main() {
 
 
                     (function generateRow(){
-                        var ballSeparation = 20;
+                        
                         
                         if(!rowBlock) {
                             rowTiles = [];
                             
-                            for(var x = 0; x < context.canvas.width - TILE_WIDTH; x+=TILE_WIDTH) {
+                            for(var x = 0; x < context.canvas.width; x+=TILE_WIDTH) {
                                     var rgb = getAverageRGBByContextSection(context, x,y,TILE_WIDTH,TILE_HEIGHT);
                                     var ball = {
                                       rgb: rgb,
@@ -84,7 +88,7 @@ function main() {
                                 });
                             }
 
-                            if(y > context.canvas.height - TILE_HEIGHT) {
+                            if(y > context.canvas.height) {
                                 finish = true;
                                 return;
                             }
@@ -120,7 +124,7 @@ function getImageContext(imgEl) {
 
 function getAverageRGBByContextSection (context,x,y,width, height) {
       var rgb = {r:102,g:102,b:102}, // Set a base colour as a fallback for non-compliant browsers
-      pixelInterval = 5 , // Rather than inspect every single pixel in the image inspect every 5th pixel
+      pixelInterval = 2 , // Rather than inspect every single pixel in the image inspect every 5th pixel
       count = 0,
       i = -4,
       data, length;
