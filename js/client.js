@@ -36,12 +36,12 @@ function main() {
                     var rowManagerIndex = 0;
                     var rowBlock = false;
                     var finish = false;
-                    var y,numRows = 0;
+                    var y = 0,numRows = 0;
                     var rowTiles = [];
 
 
                     (function generateRow(){
-                        var ballSeparation = 32;
+                        var ballSeparation = 20;
                         
                         if(!rowBlock) {
                             rowTiles = [];
@@ -55,13 +55,17 @@ function main() {
                                     };
                                     rowTiles.push(ball);
 
-                                    getColorTileSvg(rgb, ball, posx, posy);
+                                    //getColorTileSvg(rgb, ball, posx, posy);
                                     
+                                    drawCircleInCanvas( tilesContext, "#"+rgbToHexString(rgb), ball.posx, ball.posy, ballSeparation );
+
                                     posx+=ballSeparation;
                             };    
                             rowBlock = true;
+                            //
+                            loadedElements = rowTiles.length;
                         }
-                        
+                        console.log("y",y)
                         if(!finish) {
                             if(loadedElements === rowTiles.length) {
                                 rowBlock =false;
@@ -78,8 +82,9 @@ function main() {
                                     tilesContext.drawImage(ball.img, ball.posx, ball.posy);  
                                   }
                                 });
+                            }
 
-                            } else if(y > context.canvas.height - TILE_HEIGHT) {
+                            if(y > context.canvas.height - TILE_HEIGHT) {
                                 finish = true;
                                 return;
                             }
@@ -185,4 +190,12 @@ function drawSvgInCanvas(src,canvas, posx, posy,ball) {
     }
 }
 
+
+function drawCircleInCanvas(ctx, color, posx, posy, sep) {
+  var radius = sep /2;
+  ctx.beginPath();
+  ctx.arc(posx+radius, posy + radius, radius, 0, 2 * Math.PI, false);
+  ctx.fillStyle = color;
+  ctx.fill();
+}
 
