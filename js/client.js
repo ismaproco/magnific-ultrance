@@ -10,8 +10,8 @@ function main() {
     var canvas = document.getElementById('canvas');
     
 
-    var imgLoader = function imgLoader(data, x, y) {
-        drawSvgInCanvas(data, canvas,x,y);
+    var imgLoader = function imgLoader(src, x, y) {
+        drawSvgInCanvas(src, canvas,x,y);
     }
 
     document.getElementById("files").onchange = function () {
@@ -31,7 +31,7 @@ function main() {
 
                     tilesContext = canvas.getContext && canvas.getContext('2d');
                     tilesContext.clearRect(0, 0, canvas.width, canvas.height);
-                    
+                    ctx = tilesContext;
                     //break each tile of the image and replaced with the response.
                     var posx, posy;
                     posx = posy = 0;
@@ -145,37 +145,22 @@ function rgbToHexString(rgb) {
 function getColorTileSvg(rgb, imgLoader,x,y) {
     var hex = rgbToHexString(rgb);
     var src =  ["/color/",hex].join('');
-
-    var oReq = new XMLHttpRequest();
-    
-    try{
-        oReq.addEventListener("load", function(){imgLoader(this.responseText,x,y)});
-        oReq.open("GET", src);
-        oReq.onerror = function(){console.log("error" + oReq.status)}  
-        oReq.upload.onerror = function(){console.log("error" + oReq.status)}
-        oReq.send();
-    }catch(e){
-        console.log("error", e);
-    }
-    
+    imgLoader(src,x,y);
 }
 
-
-function drawSvgInCanvas(data,canvas, posx, posy) {
-    var ctx = canvas.getContext('2d');
-    //console.log("data,canvas, posx, posy",data,canvas, posx, posy)
-    var DOMURL = window.URL || window.webkitURL || window;
+var ctx;
+function drawSvgInCanvas(src,canvas, posx, posy) {
+    if(!ctx){
+        ctx = canvas.getContext('2d');    
+    }
 
     var img = new Image();
-    var svg = new Blob([data], {type: 'image/svg+xml;charset=utf-8'});
-    var url = DOMURL.createObjectURL(svg);
-
+    
     img.onload = function () {
       ctx.drawImage(img, posx, posy);
-      DOMURL.revokeObjectURL(url);
       loadedElements++;
     }
 
-    img.src = url;
+    img.src = src;
 }
 
