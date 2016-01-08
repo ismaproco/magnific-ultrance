@@ -8,11 +8,6 @@ var loadedElements = 0;
 function main() {
     //get canvas to draw the tiles and cleared
     var canvas = document.getElementById('canvas');
-    
-
-    var imgLoader = function imgLoader(src, x, y) {
-        drawSvgInCanvas(src, canvas,x,y);
-    }
 
     document.getElementById("files").onchange = function () {
         loadedElements = 0;
@@ -42,31 +37,47 @@ function main() {
                     var rowBlock = false;
                     var finish = false;
                     var y,numRows = 0;
-                    var rowTiles = 0;
+                    var rowTiles = [];
+
 
                     (function generateRow(){
+                        var ballSeparation = 32;
                         
                         if(!rowBlock) {
-                            rowTiles =0;
+                            rowTiles = [];
                             
                             for(var x = 0; x < context.canvas.width - TILE_WIDTH; x+=TILE_WIDTH) {
                                     var rgb = getAverageRGBByContextSection(context, x,y,TILE_WIDTH,TILE_HEIGHT);
-                                    getColorTileSvg(rgb, imgLoader,posx,posy);
-                                    posx+=16;
-                                    rowTiles++;
+                                    var ball = {
+                                      rgb: rgb,
+                                      posx:posx,
+                                      posy:posy
+                                    };
+                                    rowTiles.push(ball);
+
+                                    getColorTileSvg(rgb, ball, posx, posy);
+                                    
+                                    posx+=ballSeparation;
                             };    
                             rowBlock = true;
                         }
                         
                         if(!finish) {
-                            if(loadedElements === rowTiles) {
+                            if(loadedElements === rowTiles.length) {
                                 rowBlock =false;
                                 loadedElements=0;
 
-                                posy += 16;
+                                posy += ballSeparation;
                                 posx=0;
                                 y+=TILE_HEIGHT;
                                 numRows++;
+
+                                //draw row
+                                rowTiles.forEach(function(ball){
+                                  if(ball.img){
+                                    tilesContext.drawImage(ball.img, ball.posx, ball.posy);  
+                                  }
+                                });
 
                             } else if(y > context.canvas.height - TILE_HEIGHT) {
                                 finish = true;
@@ -142,25 +153,36 @@ function rgbToHexString(rgb) {
     return ((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1);
 }
 
-function getColorTileSvg(rgb, imgLoader,x,y) {
+function getColorTileSvg(rgb, ball,x,y) {
     var hex = rgbToHexString(rgb);
     var src =  ["/color/",hex].join('');
-    imgLoader(src,x,y);
+    drawSvgInCanvas(src, canvas,x,y, ball);
 }
 
 var ctx;
-function drawSvgInCanvas(src,canvas, posx, posy) {
+var cachedImages = {};
+
+function drawSvgInCanvas(src,canvas, posx, posy,ball) {
     if(!ctx){
         ctx = canvas.getContext('2d');    
     }
-
-    var img = new Image();
-    
-    img.onload = function () {
-      ctx.drawImage(img, posx, posy);
+    console.log(posx, posy)
+    if(cachedImages[src]){
+      //ctx.drawImage(cachedImages[src], posx, posy);
+      ball.img = cachedImages[src];
       loadedElements++;
-    }
+    } else{
+      var img = new Image();
+    
+      img.onload = function () {
+        //ctx.drawImage(img, posx, posy);
+        cachedImages[src]  = img;
+        ball.img = img;
+        loadedElements++;
+      }
 
-    img.src = src;
+      img.src = src;
+    }
 }
+
 
